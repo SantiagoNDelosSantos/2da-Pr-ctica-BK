@@ -1,6 +1,11 @@
+// github.passport.js
+
 import passport from 'passport';
-import GitHubStrategy from 'passport-github2';
+import { Strategy as GitHubStrategy} from 'passport-github2';
 import userModel from '../daos/mongodb/models/users.model.js';
+import ManagerCarts from '../daos/mongodb/CartManager.class.js';
+
+const managerCarts = new ManagerCarts();
 
 export const initializePassportGitHub = () => {
 
@@ -12,22 +17,25 @@ export const initializePassportGitHub = () => {
 
         try {
             let user = await userModel.findOne({
-                email: profile._json.email
+                first_name: profile._json.name,
             })
+
             if (!user) {
+                const cart = await managerCarts.crearCart();
+
                 let newUser = {
                     first_name: profile._json.name,
                     last_name: "X",
-                    email: "X" // profile._json.email
-                        ,
+                    email: profile._json.email ||"X",
                     age: 19,
                     password: "X",
-                    role: "User"
+                    role: "User",
+                    cart: cart._id
                 };
                 const result = await userModel.create(newUser);
                 return done(null, result);
             } else {
-                return done(null, false);
+                return done(null, user);
             }
 
         } catch (error) {

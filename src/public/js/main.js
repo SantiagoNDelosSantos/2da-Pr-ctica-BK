@@ -3,16 +3,17 @@ const socket = io();
 
 // Hacemos una solicitud a la ruta '/api/user' para obtener los datos del usuario
 fetch('/api/user')
+
   .then((response) => response.json())
   .then((data) => {
     // Aquí recibimos los datos del usuario en la variable 'data'
-    var userData = data.user;
+    let user = data.user;
     // Ahora puedes mostrar el Sweet Alert de bienvenida con los datos del usuario
-    console.log(userData)
+
     Swal.fire({
       icon: 'success',
       title: '¡Bienvenido!',
-      text: `Hola ${userData.first_name}, has iniciado sesión con éxito.`,
+      text: `Hola ${user.first_name}, has iniciado sesión con éxito.`,
     });
   })
   .catch((error) => {
@@ -20,7 +21,7 @@ fetch('/api/user')
   });
 
 
-  
+
 // Capturamos la tabla de productos del DOM:
 const tableProd = document.getElementById('tableProd');
 
@@ -79,35 +80,45 @@ function allProducts() {
 
     function addToCart(productID, title) {
 
-      if (productID) {
+      fetch('/api/user')
+        .then((response) => response.json())
+        .then((data) => {
+          // Aquí recibimos los datos del usuario en la variable 'data'
+          let user = data.user;
 
-        const cartID = "6490b02d354fde060cfd7c02";
-        const productIDValue = productID;
+          if (productID) {
 
-        if (cartID && productIDValue) {
+            const cartID = user.cart;
+            const productIDValue = productID;
 
-          socket.emit("agregarProductoEnCarrito", {
-            cartID,
-            productID: productIDValue
-          });
-          console.log(`clint-prodc: ${productID}`);
-          console.log(`clint-cart: ${cartID}`);
+            if (cartID && productIDValue) {
 
-          if (title) {
-            console.log(title)
+              socket.emit("agregarProductoEnCarrito", {
+                cartID,
+                productID: productIDValue
+              });
+              console.log(`clint-prodc: ${productID}`);
+              console.log(`clint-cart: ${cartID}`);
 
-            Swal.fire({
-              toast: true,
-              position: 'top-end',
-              showConfirmButton: false,
-              timer: 5000,
-              title: `${title} se ha agregado a tu carrito`,
-              icon: 'success'
-            })
+              if (title) {
+                console.log(title)
+
+                Swal.fire({
+                  toast: true,
+                  position: 'top-end',
+                  showConfirmButton: false,
+                  timer: 5000,
+                  title: `${title} se ha agregado a tu carrito`,
+                  icon: 'success'
+                })
+              }
+
+            }
           }
+        });
 
-        }
-      }
+
+
     }
 
   });

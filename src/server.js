@@ -16,7 +16,7 @@ import viewsRouter from "./routes/views.router.js";
 import ManagerProducts from './daos/mongodb/ProductsManager.class.js';
 import ManagerMessage from './daos/mongodb/MessagesManager.class.js';
 import ManagerCarts from './daos/mongodb/CartManager.class.js';
-import { logout } from './public/js/profile.js';
+// import { logout } from './public/js/profile.js';
 
 // Importación de configuraciones de Passport:
 import passport from 'passport';
@@ -130,15 +130,17 @@ socketServer.on("connection", async (socket) => {
     })
 
 
+    /
     // Carts:
 
     // Traigo todos los carritos y los guardo en carts:
-    const carts = await cartMANGR.consultarCarts();
+    // const carts = await cartMANGR.consultarCarts();
     // Envio a traves del canal 'carritos' todos los carritos:
-    socket.emit('carritos', {
-        docs: carts
-    });
+    // socket.emit('carritos', {
+    //    docs: carts
+    // });
 
+    
     // Accedo a los productos de un carrito especifico: 
     socket.on("CartCid", async (cartID) => {
         const cartCID = await cartMANGR.consultarCartPorId(cartID);
@@ -181,4 +183,4 @@ app.use('/api/realtimeproducts', routerProducts);
 app.use('/api/carts/', routerCart);
 
 // Ruta para el logout
-app.get('/logout', logout);
+// app.get('/logout', logout);

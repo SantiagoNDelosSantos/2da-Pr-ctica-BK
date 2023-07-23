@@ -10,61 +10,33 @@ const ParfCarts = document.getElementById('Parrafo');
 // Captura tabla de carritos
 const tableCarts = document.getElementById('tableCarts');
 
+
 // Función para cargar la vista principal de carritos
-function allCarts() {
-  console.log("Carga carritos");
+fetch('/api/user')
 
-  socket.on("carritos", (carts) => {
-    // Head:
-    let htmlHead = "";
-    htmlHead += `
-      <h1>Carritos:</h1>
-    `;
-    head.innerHTML = htmlHead;
+  .then((response) => response.json())
+  .then((data) => {
 
-    let htmlCarritos = "";
+    // Aquí recibimos los datos del usuario en la variable 'data'
+    let cartID = data.cartID;
 
-    // Cuerpo:
-    htmlCarritos += `
-      <thead>
-        <tr>
-          <th>Carrito - ID</th>
-          <th>Select Cart</th>
-        </tr>
-      </thead>`;
+    socket.emit("CartCid", (cartID))
 
-    carts.docs.forEach((cart) => {
-      htmlCarritos += `
-        <tr>
-          <td><h2>${cart._id}</h2></td>
-          <td><p class="boton" id="selt${cart._id}">Select</p></td>
-        </tr>`;
-    });
+    socket.on("CARTID", (cartCID) => {
 
-    tableCarts.innerHTML = htmlCarritos;
+      const CID = cartCID.products;
 
-    // Obtengo el id de cada boton Select:
-    carts.docs.forEach((cart) => {
-      const botonSelect = document.getElementById(`selt${cart._id}`);
-      botonSelect.addEventListener('click', () => {
-        let htmlHead = "";
+      // Head:
+      let htmlHead = "";
+      htmlHead += `
+      <h1>Carrito:</h1>
+      `;
+      head.innerHTML = htmlHead;
 
-        htmlHead += `
-        <h2 style="margin-top: 1em;">Carrito: ${cart._id}</h2>
-        `
-        head.innerHTML = htmlHead;
-        selectCart(cart._id);
-      });
-    });
-
-    function selectCart(cartID) {
-      socket.emit("CartCid", cartID);
-
-      socket.on("CARTID", (cartCID) => {
-        const CID = cartCID.products;
-
-        // Cuerpo:
-        let htmlCartCID = `
+      let htmlCartCID = ""
+      
+      // Cuerpo:
+      htmlCartCID += `
           <thead>
             <tr>
               <th>Modelo</th>
@@ -76,10 +48,15 @@ function allCarts() {
             </tr>
           </thead>`;
 
-        CID.forEach((product) => {
-          const { title, description, thumbnails, price } = product.product;
-          const quantity = product.quantity;
-          htmlCartCID += `
+      CID.forEach((product) => {
+        const {
+          title,
+          description,
+          thumbnails,
+          price
+        } = product.product;
+        const quantity = product.quantity;
+        htmlCartCID += `
             <tr>
               <td id="${title}">${title}</td>
               <td class="description">${description}</td>
@@ -88,12 +65,9 @@ function allCarts() {
               <td>$${price}</td>
               <td>${quantity}</td>
             </tr>`;
-        });
-
-        tableCarts.innerHTML = htmlCartCID;
       });
-    }
-  });
-}
 
-allCarts();
+      tableCarts.innerHTML = htmlCartCID;
+
+    });
+  })
